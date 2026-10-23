@@ -25,10 +25,10 @@ export async function gork(
     apiKey?: string;
   } = {}
 ): Promise<string> {
-  const client = new OpenGorkClient({
+  const client = createClient({
     backend: options.backend,
     model: options.model,
-    apiKey: options.apiKey || process.env.XAI_API_KEY,
+    apiKey: options.apiKey,
   });
 
   return client.chat(prompt, options.mode || 'heretic');
@@ -38,10 +38,15 @@ export async function gork(
  * Create a configured client instance
  */
 export function createClient(config?: Partial<OpenGorkConfig>): OpenGorkClient {
+  const apiKey = config?.apiKey || (config?.backend === 'local' ? undefined : process.env.XAI_API_KEY);
+  const backend = config?.backend || (apiKey ? 'xai' : 'local');
+  const envModel = backend === 'xai' ? process.env.XAI_MODEL : process.env.OLLAMA_MODEL;
+
   return new OpenGorkClient({
-    apiKey: process.env.XAI_API_KEY,
-    model: process.env.OLLAMA_MODEL || process.env.XAI_MODEL,
     ...config,
+    backend,
+    apiKey,
+    model: config?.model || envModel,
   });
 }
 
