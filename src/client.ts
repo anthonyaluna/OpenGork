@@ -41,11 +41,12 @@ export class OpenGorkClient {
   private config: OpenGorkConfig;
 
   constructor(config: Partial<OpenGorkConfig> = {}) {
+    const backend = config.backend || (config.apiKey ? 'xai' : 'local');
     this.config = {
-      backend: config.backend || (config.apiKey ? 'xai' : 'local'),
-      model: config.model || (config.backend === 'xai' ? 'grok-3' : 'dolphin-mixtral:8x7b'),
+      backend,
+      model: config.model || (backend === 'xai' ? 'grok-3' : 'dolphin-mixtral:8x7b'),
       apiKey: config.apiKey,
-      baseUrl: config.baseUrl || (config.backend === 'xai' ? 'https://api.x.ai/v1' : 'http://localhost:11434'),
+      baseUrl: config.baseUrl || (backend === 'xai' ? 'https://api.x.ai/v1' : 'http://localhost:11434'),
       temperature: config.temperature || 0.9,
     };
   }
